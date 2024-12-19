@@ -1,0 +1,224 @@
+---
+title: "Group_01"
+author: "Sewmi"
+date: "2024-02-20"
+output: word_document
+---
+
+```{r}
+library(dplyr)
+
+options(scipen = 999)
+
+df<-read.csv("C:/Users/ASUS/Desktop/Group_01/Data_set.csv")
+```
+
+```{r}
+#Get the missing count and its proportion to the data set
+missing_count<-vector()
+mp<-vector()
+for (i in 1:213) {
+  missing_count[i] <- sum(is.na(df[i,5:68]))
+  mp[i]<-(missing_count[i]/64)*100
+}
+
+df$missing_proportion<-mp
+```
+```{r}
+#Find the mean of the each rows
+avg<-vector()
+for (i in 1:213) {
+  avg[i] <- rowMeans(df[i,5:68], na.rm = TRUE)
+}
+
+df$Mean<-avg
+```
+
+```{r}
+#Replace missing values with 'avg'(mean we have found)
+df[,5:68][is.na(df[,5:68])] <- "na"
+for (i in 1:213) {
+  for (j in 5:68) {
+    if(df[i,j]=="na"){
+      df[i,j]<-avg[i]
+    }
+  }
+}
+
+#filter the rows that have missing count less than to 70%
+df1<-data.frame(df)
+df1<-df[df$missing_proportion<=70 & df$Mean !=0,]
+```
+
+```{r}
+#Create 3 data frame to each country
+dfSL<-data.frame(df1)
+dfSL<-df1[df1$Country.Code=="LKA",]
+Sri_Lanka<-data.frame(t(dfSL[1:71,5:68]))
+Sri_Lanka<-Sri_Lanka[1:64,1:51]
+
+dfBA<-data.frame(df1)
+dfBA<-df1[df1$Country.Code=="BGD",]
+Bangladesh<-data.frame(t(dfBA[1:71,5:68]))
+Bangladesh<-Bangladesh[1:64,1:51]
+
+dfIN<-data.frame(df1)
+dfIN<-df1[df1$Country.Code=="IND",]
+India<-data.frame(t(dfIN[1:71,5:68]))
+India<-India[1:64,1:53]
+
+colNumSL<- vector()
+colNumSL<-dfSL$Indicator.Code
+colnames(Sri_Lanka)<-colNumSL
+
+colNumBA<- vector()
+colNumBA<-dfBA$Indicator.Code
+colnames(Bangladesh)<-colNumBA
+
+colNumIN<- vector()
+colNumIN<-dfIN$Indicator.Code
+colnames(India)<-colNumIN
+
+year<-c(1960:2023)
+Sri_Lanka$Year<-year
+Bangladesh$Year<- year
+India$Year<-year
+```
+
+```{r}
+Sri_Lanka[]<-lapply(Sri_Lanka,as.numeric)
+Bangladesh[]<-lapply(Bangladesh,as.numeric)
+India[]<-lapply(India,as.numeric)
+```
+
+#Access to clean fuels and technologies for cooking (% of population)
+
+```{r}
+summary(Sri_Lanka$EG.CFT.ACCS.ZS)
+summary(Bangladesh$EG.CFT.ACCS.ZS)
+summary(India$EG.CFT.ACCS.ZS)
+```
+
+```{r}
+library(ggplot2)
+SL<-c(Sri_Lanka$EG.CFT.ACCS.ZS)
+IN<-c(India$EG.CFT.ACCS.ZS)
+BA<-c(Bangladesh$EG.CFT.ACCS.ZS)
+
+data_1<-data.frame(SL,IN,BA,year)
+
+ggplot(data = data_1,mapping = aes(x=year))+
+  geom_line(mapping = aes(y=SL,color = "Sri Lanka"))+
+  geom_line(mapping = aes(y=IN,color = "India"))+
+  geom_line(mapping = aes(y=BA,color = "Banglasdesh"))+
+  labs(title = "Access to clean fuels and technologies for cooking", x="Year",y="Percentage of population")+
+  scale_color_manual(name ="Country",labels= c("Bangladesh","India","Sri Lanka"),values = c("blue","black","red"))+
+  theme_minimal()
+  
+```
+#INTERPRITATION
+#This line graph shows Access to clean fuel and technologies and cooking according to the percentage of population of Sri Lanka,India and Bangladesh.For all these years India has the maximum percentage of Access to clean fuel and technologies and cooking.Sri Lanka has the minimum percentage of Access to clean fuel and technologies.Average percentage of populationsin Sri Lanka, Bangaladesh and India is 23.21%, 14.67%, 40.75% repevctively.According to this line plot we can conclude that Inida has maximum percentage of population since 1960.
+
+#Access to electricity (% of population)
+```{r}
+summary(Sri_Lanka$EG.ELC.ACCS.ZS)
+summary(Bangladesh$EG.ELC.ACCS.ZS)
+summary(India$EG.ELC.ACCS.ZS)
+```
+
+```{r}
+SL<-c(Sri_Lanka$EG.ELC.ACCS.ZS)
+IN<-c(India$EG.ELC.ACCS.ZS)
+BA<-c(Bangladesh$EG.ELC.ACCS.ZS)
+
+data_2<-data.frame(SL,IN,BA,year)
+
+ggplot(data = data_2,mapping = aes(x=year))+
+  geom_line(mapping = aes(y=SL,color = "Sri Lanka"))+
+  geom_line(mapping = aes(y=IN,color = "India"))+
+  geom_line(mapping = aes(y=BA,color = "Banglasdesh"))+
+  labs(title = "Access to the electricity", x="Year",y="Percentage of population")+
+  scale_color_manual(name ="Country",labels= c("Bangladesh","India","Sri Lanka"),values = c("blue","black","red"))+
+  theme_minimal()
+```
+#INTERPRITATION
+#This line plot shows Access to the electricity according to the percentage of population. The highest percentage of Access to electricity has Bangladesh and least percentage has Sri Lanka fro the period of years. Average percentage of poplulation of Sri Lanka, Banladesh and India are 86.72%, 49.286% and 72.75% repectively.According to this line plot we can conclude that Bangladesh has maximum percentage of ppopulation and Sri Lanka has the minimum percentage of population since 1960.
+
+#Adjusted savings: natural resources depletion (% of GNI)
+```{r}
+summary(Sri_Lanka$NY.ADJ.DRES.GN.ZS)
+summary(Bangladesh$NY.ADJ.DRES.GN.ZS)
+summary(India$NY.ADJ.DRES.GN.ZS)
+```
+```{r}
+SL<-c(Sri_Lanka$NY.ADJ.DRES.GN.ZS)
+IN<-c(India$NY.ADJ.DRES.GN.ZS)
+BA<-c(Bangladesh$NY.ADJ.DRES.GN.ZS)
+
+data_3<-data.frame(SL,IN,BA,year)
+
+ggplot(data = data_3,mapping = aes(x=year))+
+  geom_line(mapping = aes(y=SL,color = "Sri Lanka"))+
+  geom_line(mapping = aes(y=IN,color = "India"))+
+  geom_line(mapping = aes(y=BA,color = "Banglasdesh"))+
+  labs(title = "Natural resource depletion", x="Year",y="Percentage of GNI")+
+  scale_color_manual(name ="Country",labels= c("Bangladesh","India","Sri Lanka"),values = c("blue","black","red"))+
+  theme_minimal()
+```
+# INTERPRITATION
+#This line plot shows Nature resource depletion according to the percentage of GNI. The highest percentage of Access to electricity has Bangladesh and least percentage has Sri Lanka fro the period of years. Average percentage of poplulation of Sri Lanka, Banladesh and India are 86.72%, 49.286% and 72.75% respectively.According to this line plot we can conclude that Bangladesh has maximum percentage of population and Sri Lanka has the minimum percentage of GNI since 1960.
+
+#Adjusted savings: net forest depletion (% of GNI)
+```{r}
+summary(Sri_Lanka$NY.ADJ.DFOR.GN.ZS)
+summary(Bangladesh$NY.ADJ.DFOR.GN.ZS)
+summary(India$NY.ADJ.DFOR.GN.ZS)
+```
+```{r}
+SL<-c(Sri_Lanka$NY.ADJ.DFOR.GN.ZS)
+IN<-c(India$NY.ADJ.DFOR.GN.ZS)
+BA<-c(Bangladesh$NY.ADJ.DFOR.GN.ZS)
+
+data_4<-data.frame(SL,IN,BA,year)
+
+ggplot(data = data_4,mapping = aes(x=year))+
+  geom_line(mapping = aes(y=SL,color = "Sri Lanka"))+
+  geom_line(mapping = aes(y=IN,color = "India"))+
+  geom_line(mapping = aes(y=BA,color = "Banglasdesh"))+
+  labs(title = "Net forest depletion", x="Year",y="Percentage of GNI")+
+  scale_color_manual(name ="Country",labels= c("Bangladesh","India","Sri Lanka"),values = c("blue","black","red"))+
+  theme_minimal()
+```
+#INTERPRITATION
+#This line plot shows Net forest depletion according to the percentage of GNI. The highest percentage of Net forest depletion has India and least percentage has Bangladesh for the period of years. Average percentage of poplulation of Sri Lanka, Banladesh and India are 0.2769%, 0.38938% and 0.4655% respectively.According to this line plot we can conclude that India has maximum percentage of GNI and Bangladesh has the minimum percentage of GNI since 1960.
+
+#Agricultural land (% of land area)
+```{r}
+summary(Sri_Lanka$AG.LND.AGRI.ZS)
+summary(India$AG.LND.AGRI.ZS)
+summary(Bangladesh$AG.LND.AGRI.ZS)
+```
+```{r}
+SL<-c(Sri_Lanka$AG.LND.AGRI.ZS)
+IN<-c(India$AG.LND.AGRI.ZS)
+BA<-c(Bangladesh$AG.LND.AGRI.ZS)
+
+data_5<-data.frame(SL,IN,BA,year)
+
+ggplot(data = data_5,mapping = aes(x=year))+
+  geom_line(mapping = aes(y=SL,color = "Sri Lanka"))+
+  geom_line(mapping = aes(y=IN,color = "India"))+
+  geom_line(mapping = aes(y=BA,color = "Banglasdesh"))+
+  labs(title = "Agriculture land", x="Year",y="Percentage of land area")+
+  scale_color_manual(name ="Country",labels= c("Bangladesh","India","Sri_Lanka"),values = c("blue","black","red"))+
+  theme_minimal()
+```
+#INTERPRITATION
+#This line plot shows Agriculture land according to the percentage of land area. The highest percentage of Agriculture land in Bangladesh is 80.23% and least percentage is 70.09%. The highest percentage of Agriculture land in India is 58.84% and least percentage is 61.07%. The highest percentage of Agriculture land in Bangladesh is 27.22% and least percentage is 45.46%. Average percentage of Land area of Sri Lanka, Banladesh and India are 38.38%, 74.30% and 60.43% respectively.According to this line plot we can conclude that Bangladesh has maximum percentage of land area and Sri Lanka has the minimum percentage of land area since 1960.
+
+```{r}
+summary(data_5)
+```
+
+
+
